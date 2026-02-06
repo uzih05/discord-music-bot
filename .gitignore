@@ -9,5 +9,6 @@
 vendor/
 .idea/
 music-bot
+discord-music-bot
 plugins/
 lavalink/application.yml
