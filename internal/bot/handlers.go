@@ -339,6 +339,42 @@ func (b *Bot) handleQueue(event *events.ApplicationCommandInteractionCreate) {
 		Build())
 }
 
+func (b *Bot) handleMove(event *events.ApplicationCommandInteractionCreate) {
+	data := event.SlashCommandInteractionData()
+	from := data.Int("from")
+	to := data.Int("to")
+
+	gp := b.GetOrCreatePlayer(*event.GuildID())
+
+	if from == to {
+		b.respondEphemeral(event, "같은 위치입니다.")
+		return
+	}
+
+	track, ok := gp.Move(from, to)
+	if !ok {
+		b.respondEphemeral(event, "잘못된 위치입니다. /queue로 대기열을 확인하세요.")
+		return
+	}
+
+	b.respondEphemeral(event, fmt.Sprintf("**%s**을(를) %d번에서 %d번으로 이동했습니다.", track.Info.Title, from, to))
+}
+
+func (b *Bot) handleRemove(event *events.ApplicationCommandInteractionCreate) {
+	data := event.SlashCommandInteractionData()
+	pos := data.Int("position")
+
+	gp := b.GetOrCreatePlayer(*event.GuildID())
+
+	track, ok := gp.Remove(pos)
+	if !ok {
+		b.respondEphemeral(event, "잘못된 위치입니다. /queue로 대기열을 확인하세요.")
+		return
+	}
+
+	b.respondEphemeral(event, fmt.Sprintf("**%s**을(를) 대기열에서 삭제했습니다.", track.Info.Title))
+}
+
 func (b *Bot) handleVolume(event *events.ApplicationCommandInteractionCreate) {
 	data := event.SlashCommandInteractionData()
 	level := data.Int("level")

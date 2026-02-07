@@ -48,6 +48,10 @@ func (b *Bot) onApplicationCommand(event *events.ApplicationCommandInteractionCr
 		b.handleStop(event)
 	case "queue":
 		b.handleQueue(event)
+	case "move":
+		b.handleMove(event)
+	case "remove":
+		b.handleRemove(event)
 	case "volume":
 		b.handleVolume(event)
 	case "repeat":

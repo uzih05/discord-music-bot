@@ -166,3 +166,41 @@ func (gp *GuildPlayer) QueueList(max int) []lavalink.Track {
 	copy(result, gp.Queue[:max])
 	return result
 }
+
+func (gp *GuildPlayer) Move(from, to int) (lavalink.Track, bool) {
+	gp.Mu.Lock()
+	defer gp.Mu.Unlock()
+
+	if from < 1 || from > len(gp.Queue) || to < 1 || to > len(gp.Queue) {
+		return lavalink.Track{}, false
+	}
+
+	fromIdx := from - 1
+	toIdx := to - 1
+
+	track := gp.Queue[fromIdx]
+	gp.Queue = append(gp.Queue[:fromIdx], gp.Queue[fromIdx+1:]...)
+
+	newQueue := make([]lavalink.Track, 0, len(gp.Queue)+1)
+	newQueue = append(newQueue, gp.Queue[:toIdx]...)
+	newQueue = append(newQueue, track)
+	newQueue = append(newQueue, gp.Queue[toIdx:]...)
+	gp.Queue = newQueue
+
+	return track, true
+}
+
+func (gp *GuildPlayer) Remove(pos int) (lavalink.Track, bool) {
+	gp.Mu.Lock()
+	defer gp.Mu.Unlock()
+
+	if pos < 1 || pos > len(gp.Queue) {
+		return lavalink.Track{}, false
+	}
+
+	idx := pos - 1
+	track := gp.Queue[idx]
+	gp.Queue = append(gp.Queue[:idx], gp.Queue[idx+1:]...)
+
+	return track, true
+}
